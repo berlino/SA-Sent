@@ -22,9 +22,10 @@ def argmax_m(mat):
     ret_v, ret_ind = [], []
     m, n = mat.size()
     for i in range(m):
+        ## cj modified
         ind_ = argmax(mat[i])
         ret_ind.append(ind_)
-        ret_v.append(mat[i][ind_])
+        ret_v.append(torch.tensor([mat[i][ind_]]))
     if type(ret_v[0]) == Variable or type(ret_v[0]) == torch.Tensor:
         return ret_ind, torch.cat(ret_v)
     else:
@@ -32,6 +33,7 @@ def argmax_m(mat):
 
 # Compute log sum exp in a numerically stable way for the forward algorithm
 # vec is n * n, norm in row
+
 def log_sum_exp_m(mat):
     row, column = mat.size()
     ret_l = []
@@ -39,8 +41,12 @@ def log_sum_exp_m(mat):
         vec = mat[i]
         max_score = vec[argmax(vec)]
         max_score_broadcast = max_score.view( -1).expand(1, vec.size()[0])
-        ret_l.append( max_score + \
-        torch.log(torch.sum(torch.exp(vec - max_score_broadcast))))
+
+        ## cj modified
+        v = max_score + \
+                     torch.log(torch.sum(torch.exp(vec - max_score_broadcast)))
+        ret_l.append(torch.tensor([v]))
+
     return torch.cat(ret_l, 0)
 
 def log_sum_exp(vec_list):
@@ -56,6 +62,9 @@ def log_sum_exp(vec_list):
     # sum along dim 0
     ret_val = max_ex_v + torch.log(torch.sum(torch.exp(tmp_mat - max_expand), 0))
     return ret_val
+
+
+
 
 # vec1 and vec2 both 1d tensor
 # return 1d tensor
